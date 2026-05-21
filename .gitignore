@@ -36,3 +36,10 @@ Thumbs.db
 
 # Production build
 www/
+node_modules
+dist
+build
+.env
+.env.local
+.DS_Store
+.vscode
