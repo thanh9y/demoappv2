@@ -36,6 +36,7 @@ Thumbs.db
 
 # Production build
 www/
+
 node_modules
 dist
 build
