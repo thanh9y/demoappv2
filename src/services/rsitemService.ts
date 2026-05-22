@@ -1,7 +1,13 @@
-import type {Rsitem} from '@/types/rsitem';
+import type {RsAgent,Rsitem} from '@/types/rsitem';
 
 const API_BASE_URL = 'https://online.nks.vn/api/nks';
 
+type AgentResponse = {
+  success: boolean;
+  option?: unknown;
+  data?: RsAgent;
+  message?: string;
+};
 type ListResponse = {
   success: boolean;
   option?: unknown;
@@ -185,5 +191,26 @@ export async function getRsitemDetail(slug: string) {
     console.log('getRsitemDetail error:', error);
 
     throw new Error(getErrorMessage('Unable to load property detail.', error));
+  }
+}
+export async function getRsagent(id: number | string) {
+  try {
+    const formData = new FormData();
+    formData.append('id', String(id));
+    const response = await fetch(`${API_BASE_URL}/rsagent`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      body: formData,
+    });
+    const json = await readJsonResponse<AgentResponse>(response);
+    if (!response.ok || !json.success || !json.data) {
+      throw new Error(json.message || 'Unable to load agent detail.');
+    }
+    return json.data;
+  } catch (error) {
+    console.log('getRsagent error:', error);
+    throw new Error(getErrorMessage('Unable to load agent detail.', error));
   }
 }

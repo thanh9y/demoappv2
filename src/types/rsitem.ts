@@ -98,3 +98,43 @@ export type RsitemRoad = {
   opacity?: number | null;
   childs?: unknown[];
 };
+export type RsAgentAchievement = {
+  achievementYear?: string | null;
+  achievementResult?: string | null;
+};
+
+export type RsAgentCertificate = {
+  certificationCode?: string | null;
+  certificationName?: string | null;
+  certificationIssuedOn?: string | null;
+  certificationIssuedAt?: string | null;
+};
+
+export type RsAgentGroup = {
+  groupTitle?: string | null;
+  groupYear?: string | null;
+};
+
+export type RsAgent = {
+  id: number;
+  name?: string | null;
+  avatar?: string | null;
+  phone?: string | null;
+  email?: string | null;
+
+  rslogan?: string | null;
+  rsbio?: string | null;
+  rsexperience?: number | null;
+  rslocation?: string | null;
+
+  /**
+   * API hiện tại trả về dạng string JSON.
+   * Nhưng để an toàn, cho phép cả string hoặc array.
+   */
+  rsachievement?: string | RsAgentAchievement[] | null;
+  rscertificate?: string | RsAgentCertificate[] | null;
+  rsgroup?: string | RsAgentGroup[] | null;
+
+  rsitem_count?: number | null;
+  rsitems?: Rsitem[];
+};
