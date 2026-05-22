@@ -32,6 +32,7 @@ hasListingTypeFilter,
 import './style.scss';
 import SaleProfileView from './components/SaleProfileView';
 export default function NearbyPage() {
+  const [mapFocusItem, setMapFocusItem] = useState<Rsitem | null>(null);
   const [items, setItems] = useState<Rsitem[]>([]);
   const [filters, setFilters] = useState<PropertyFilters>(defaultFilters);
   const [draftFilters, setDraftFilters] =
@@ -95,6 +96,9 @@ export default function NearbyPage() {
 
     return sortRsitems(filtered, sortOption);
   }, [items, filters, sortOption]);
+  const mapItem = useMemo(() => {
+    return mapFocusItem ? [mapFocusItem] : visibleItems;
+    }, [mapFocusItem, visibleItems]);
 
   useEffect(() => {
     if (visibleItems.length === 0) {
@@ -125,6 +129,7 @@ export default function NearbyPage() {
     try {
       setDetailLoading(true);
       setSelectedItemId(item.id);
+      setMapFocusItem(null);
 
       if (!item.slug) {
         setDetailItem(item);
@@ -159,6 +164,7 @@ export default function NearbyPage() {
 
   const viewDetailOnMap = (item: Rsitem) => {
     setDetailItem(null);
+    setMapFocusItem(item);
     setSelectedItemId(item.id);
     setViewMode('map');
   };
@@ -312,7 +318,7 @@ export default function NearbyPage() {
 
           {!loading && !errorMessage && viewMode === 'map' ? (
             <MapLibreView
-              items={visibleItems}
+              items={mapItem}
               selectedItemId={selectedItemId}
               onSelectItem={item => setSelectedItemId(item.id)}
               onOpenDetail={openDetail}
@@ -322,10 +328,17 @@ export default function NearbyPage() {
           <button
             type="button"
             className="floating-map-button"
-            onClick={() =>
-              setViewMode(prev => (prev === 'list' ? 'map' : 'list'))
-            }>
+            onClick={() =>{
+              if(viewMode === 'list') {
+                setMapFocusItem(null);
+                setViewMode('map');
+                return;
+              }
+              setViewMode('list');
+              setMapFocusItem(null);
+            }}>
             {viewMode === 'list' ? '☷ Bản đồ' : '☷ Danh sách'}
+             
           </button>
 
           {showFilters ? (

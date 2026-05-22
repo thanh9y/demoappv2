@@ -5,24 +5,12 @@ import {
   AnimationRoutes,
   Route,
   BottomNavigation,
-  Page,
-  Box,
-  Text,
 } from 'zmp-ui';
 import {useLocation, useNavigate} from 'react-router-dom';
 
 import NearbyPage from '@/pages/nearby';
 import SavedPage from '@/pages/saved';
-
-function AccountPage() {
-  return (
-    <Page className="account-page">
-      <Box style={{padding: 20, paddingTop: 80}}>
-        <Text.Title>Tài khoản</Text.Title>
-      </Box>
-    </Page>
-  );
-}
+import AccountPage from '@/pages/account';
 
 function MainLayout() {
   const navigate = useNavigate();

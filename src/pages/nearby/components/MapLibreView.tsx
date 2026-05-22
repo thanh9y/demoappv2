@@ -13,7 +13,11 @@ import {
   MAP_CENTER_PADDING,
 } from '../constants';
 import {
+  getGeojson3DFeatureCollection,
+  getGeojsonFeatureCollection,
   getMapMetaParts,
+  hasGeojson,
+  hasGeojson3D,
   sortMapItemsByNearbyPath,
 } from '../helpers';
 import type {MapItem} from '../types';
@@ -24,6 +28,75 @@ type MapLibreViewProps = {
   onSelectItem: (item: Rsitem) => void;
   onOpenDetail: (item: Rsitem) => void;
 };
+const PROPERTY_GEOJSON_SOURCE_ID = 'property-geojson';
+const PROPERTY_GEOJSON_FILL_LAYER_ID = 'property-geojson-fill';
+const PROPERTY_GEOJSON_LINE_LAYER_ID = 'property-geojson-line';
+const BUILDING_3D_SOURCE_ID = 'property-3d-buildings';
+const BUILDING_3D_LAYER_ID = 'property-3d-buildings-layer';
+const BUILDING_3D_OUTLINE_LAYER_ID = 'property-3d-buildings-outline';
+
+function ensure3DBuildingLayers(map: maplibregl.Map) {
+  if (!map.getSource(BUILDING_3D_SOURCE_ID)) {
+    map.addSource(BUILDING_3D_SOURCE_ID, {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [],
+      },
+    });
+  }
+
+  if (!map.getLayer(BUILDING_3D_LAYER_ID)) {
+    map.addLayer({
+      id: BUILDING_3D_LAYER_ID,
+      type: 'fill-extrusion',
+      source: BUILDING_3D_SOURCE_ID,
+      paint: {
+        'fill-extrusion-color': ['get', '_color'],
+        'fill-extrusion-height': ['get', '_height'],
+        'fill-extrusion-base': ['get', '_baseHeight'],
+        'fill-extrusion-opacity': 0.82,
+      },
+    });
+  }
+
+  if (!map.getLayer(BUILDING_3D_OUTLINE_LAYER_ID)) {
+    map.addLayer({
+      id: BUILDING_3D_OUTLINE_LAYER_ID,
+      type: 'line',
+      source: BUILDING_3D_SOURCE_ID,
+      paint: {
+        'line-color': '#111827',
+        'line-width': 1.5,
+        'line-opacity': 0.55,
+      },
+    });
+  }
+}
+
+function update3DBuildingData(map: maplibregl.Map, items: Rsitem[]) {
+  const source = map.getSource(BUILDING_3D_SOURCE_ID) as
+    | maplibregl.GeoJSONSource
+    | undefined;
+
+  if (!source) {
+    return;
+  }
+
+  source.setData(getGeojson3DFeatureCollection(items));
+}
+
+function getZoomForItem(map: maplibregl.Map, item: Rsitem) {
+  return Math.max(map.getZoom(), hasGeojson(item)||hasGeojson3D(item) ? 18 : 15);
+}
+
+function getPitchForItem(map: maplibregl.Map, item: Rsitem) {
+  return hasGeojson(item)||hasGeojson3D(item) ? 55 : map.getPitch();
+}
+
+function getBearingForItem(map: maplibregl.Map, item: Rsitem) {
+  return hasGeojson(item)||hasGeojson3D(item) ? -25 : map.getBearing();
+}
 
 export default function MapLibreView({
   items,
@@ -76,7 +149,9 @@ export default function MapLibreView({
 
     map.easeTo({
       center: [mapItem.longitude, mapItem.latitude],
-      zoom: Math.max(map.getZoom(), 15),
+      zoom: getZoomForItem(map, mapItem.item),
+      pitch: getPitchForItem(map, mapItem.item),
+      bearing: getBearingForItem(map, mapItem.item),
       duration,
       offset: MAP_CARD_OFFSET,
       padding: {
@@ -95,6 +170,7 @@ export default function MapLibreView({
     }
 
     const firstLocation = mapItems[0];
+    const has3DData = items.some(hasGeojson3D);
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
@@ -120,6 +196,8 @@ export default function MapLibreView({
         ? [firstLocation.longitude, firstLocation.latitude]
         : [106.660172, 10.762622],
       zoom: firstLocation ? 13 : 11,
+      pitch: has3DData ? 45 : 0,
+      bearing: has3DData ? -20 : 0,
     });
 
     map.addControl(
@@ -130,6 +208,13 @@ export default function MapLibreView({
     );
 
     mapRef.current = map;
+
+    map.on('load', () => {
+      ensure3DBuildingLayers(map);
+      update3DBuildingData(map, items);
+      ensurePropertyGeojsonLayers(map);
+      updatePropertyGeojsonData(map, items);
+    });
 
     window.setTimeout(() => {
       map.resize();
@@ -143,7 +228,28 @@ export default function MapLibreView({
       mapRef.current = null;
       initializedFitRef.current = false;
     };
-  }, [mapItems]);
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (!map) {
+      return;
+    }
+
+    const updateData = () => {
+      ensure3DBuildingLayers(map);
+      update3DBuildingData(map, items);
+      ensurePropertyGeojsonLayers(map);
+      updatePropertyGeojsonData(map, items);
+    };
+
+    if (map.loaded()) {
+      updateData();
+    } else {
+      map.once('load', updateData);
+    }
+  }, [items]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -171,7 +277,9 @@ export default function MapLibreView({
 
         map.easeTo({
           center: [longitude, latitude],
-          zoom: Math.max(map.getZoom(), 15),
+          zoom: getZoomForItem(map, item),
+          pitch: getPitchForItem(map, item),
+          bearing: getBearingForItem(map, item),
           duration: 450,
           offset: MAP_CARD_OFFSET,
           padding: {
@@ -226,7 +334,9 @@ export default function MapLibreView({
 
       map.easeTo({
         center: [onlyItem.longitude, onlyItem.latitude],
-        zoom: 15,
+        zoom: hasGeojson3D(onlyItem.item) ? 18 : 15,
+        pitch: hasGeojson3D(onlyItem.item) ? 55 : map.getPitch(),
+        bearing: hasGeojson3D(onlyItem.item) ? -25 : map.getBearing(),
         duration: 300,
         padding: MAP_CENTER_PADDING,
       });
@@ -349,6 +459,7 @@ export default function MapLibreView({
           onScroll={handleCardScroll}>
           {mapItems.map(({item}) => {
             const metaParts = getMapMetaParts(item);
+            const has3D = hasGeojson3D(item);
 
             return (
               <Box
@@ -385,6 +496,12 @@ export default function MapLibreView({
                       </Text>
                     ) : null}
 
+                    {has3D ? (
+                      <Text className="map-property-meta">
+                        🏢 Có dữ liệu 3D
+                      </Text>
+                    ) : null}
+
                     <Text className="map-property-address">
                       📍 {item.address || item.province || 'No address'}
                     </Text>
@@ -397,4 +514,52 @@ export default function MapLibreView({
       </Box>
     </Box>
   );
+}
+function ensurePropertyGeojsonLayers(map: maplibregl.Map) {
+  if (!map.getSource(PROPERTY_GEOJSON_SOURCE_ID)) {
+    map.addSource(PROPERTY_GEOJSON_SOURCE_ID, {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [],
+      },
+    });
+  }
+
+  if (!map.getLayer(PROPERTY_GEOJSON_FILL_LAYER_ID)) {
+    map.addLayer({
+      id: PROPERTY_GEOJSON_FILL_LAYER_ID,
+      type: 'fill',
+      source: PROPERTY_GEOJSON_SOURCE_ID,
+      paint: {
+        'fill-color': ['get', '_fillColor'],
+        'fill-opacity': 0.28,
+      },
+    });
+  }
+
+  if (!map.getLayer(PROPERTY_GEOJSON_LINE_LAYER_ID)) {
+    map.addLayer({
+      id: PROPERTY_GEOJSON_LINE_LAYER_ID,
+      type: 'line',
+      source: PROPERTY_GEOJSON_SOURCE_ID,
+      paint: {
+        'line-color': ['get', '_lineColor'],
+        'line-width': 2.5,
+        'line-opacity': 0.9,
+      },
+    });
+  }
+}
+
+function updatePropertyGeojsonData(map: maplibregl.Map, items: Rsitem[]) {
+  const source = map.getSource(PROPERTY_GEOJSON_SOURCE_ID) as
+    | maplibregl.GeoJSONSource
+    | undefined;
+
+  if (!source) {
+    return;
+  }
+
+  source.setData(getGeojsonFeatureCollection(items));
 }

@@ -41,7 +41,8 @@ export type Rsitem = {
   address?: string | null;
   province?: string | null;
   fulladd?: string | null;
-
+geojson?: string | null;
+geojson3D?: string | null;
   phone?: string | null;
   price?: number | null;
   sqrprice?: number | null;
@@ -54,7 +55,7 @@ export type Rsitem = {
   floors?: number | null;
   direction?: string | null;
   description?: string | null;
-  rstype?: string | null;
+  rstype?: string | number | null;
 
   formatedPrice?: string | number | null;
   formatedSqrPrice?: string | number | null;
@@ -137,4 +138,39 @@ export type RsAgent = {
 
   rsitem_count?: number | null;
   rsitems?: Rsitem[];
+};
+export type RsAgentSummary = {
+  id: number;
+  name?: string | null;
+  avatar?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  rsitems?: number | null;
+};
+
+export type InsightAuthor = {
+  name?: string | null;
+};
+
+export type Insight = {
+  id?: number | null;
+  title?: string | null;
+  slug?: string | null;
+  image?: string | null;
+  excerpt?: string | null;
+  category_id?: number | null;
+  author_id?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  postCategory?: string | null;
+  author?: InsightAuthor | null;
+  formatedDate?: string | null;
+};
+
+export type InsightDetail = Insight & {
+  id: number;
+  body?: string | null;
+  view?: number | null;
+  tags?: string[];
+  related?: Insight[];
 };

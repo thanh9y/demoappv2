@@ -3,8 +3,8 @@ import {Box, Text} from 'zmp-ui';
 
 import type {SortOption} from '@/types/rsitem';
 
-import {sortLabels} from '../sort';
 import {sortOptions} from '../constants';
+import {sortLabels} from '../sort';
 
 type SortPanelProps = {
   value: SortOption;
@@ -18,24 +18,27 @@ export default function SortPanel({
   onClose,
 }: SortPanelProps) {
   return (
-    <Box className="sheet-backdrop">
-      <Box className="sort-sheet">
+    <Box className="sheet-backdrop" onClick={onClose}>
+      <Box className="sort-sheet" onClick={event => event.stopPropagation()}>
         <Box className="sheet-header">
-          <Text className="sheet-title">Sort Properties</Text>
+          <Text className="sheet-title">Sắp xếp</Text>
+
           <button type="button" className="close-button" onClick={onClose}>
             ×
           </button>
         </Box>
 
-        {sortOptions.map(option => (
-          <button
-            type="button"
-            key={option}
-            className={`sort-option ${value === option ? 'active' : ''}`}
-            onClick={() => onChange(option)}>
-            {sortLabels[option]}
-          </button>
-        ))}
+        <Box className="sheet-content">
+          {sortOptions.map(option => (
+            <button
+              type="button"
+              key={option}
+              className={`sort-option ${value === option ? 'active' : ''}`}
+              onClick={() => onChange(option)}>
+              {sortLabels[option]}
+            </button>
+          ))}
+        </Box>
       </Box>
     </Box>
   );

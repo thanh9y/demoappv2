@@ -1,4 +1,10 @@
-import type {RsAgent,Rsitem} from '@/types/rsitem';
+import type {
+  Insight,
+  InsightDetail,
+  RsAgent,
+  RsAgentSummary,
+  Rsitem,
+} from '@/types/rsitem';
 
 const API_BASE_URL = 'https://online.nks.vn/api/nks';
 
@@ -6,6 +12,26 @@ type AgentResponse = {
   success: boolean;
   option?: unknown;
   data?: RsAgent;
+  message?: string;
+};
+type AgentsResponse = {
+  success: boolean;
+  option?: unknown;
+  data?: RsAgentSummary[];
+  message?: string;
+};
+
+type InsightsResponse = {
+  success: boolean;
+  option?: unknown;
+  data?: Insight[];
+  message?: string;
+};
+
+type InsightResponse = {
+  success: boolean;
+  option?: unknown;
+  data?: InsightDetail;
   message?: string;
 };
 type ListResponse = {
@@ -212,5 +238,78 @@ export async function getRsagent(id: number | string) {
   } catch (error) {
     console.log('getRsagent error:', error);
     throw new Error(getErrorMessage('Unable to load agent detail.', error));
+  }
+}
+export async function getRsagents() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/rsagents`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    const json = await readJsonResponse<AgentsResponse>(response);
+
+    if (!response.ok || !json.success) {
+      throw new Error(json.message || 'Unable to load agents.');
+    }
+
+    return json.data ?? [];
+  } catch (error) {
+    console.log('getRsagents error:', error);
+
+    throw new Error(getErrorMessage('Unable to load agents.', error));
+  }
+}
+
+export async function getInsights() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/insights`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    const json = await readJsonResponse<InsightsResponse>(response);
+
+    if (!response.ok || !json.success) {
+      throw new Error(json.message || 'Unable to load insights.');
+    }
+
+    return json.data ?? [];
+  } catch (error) {
+    console.log('getInsights error:', error);
+
+    throw new Error(getErrorMessage('Unable to load insights.', error));
+  }
+}
+
+export async function getInsightDetail(slug: string) {
+  try {
+    const formData = new FormData();
+
+    formData.append('slug', slug);
+
+    const response = await fetch(`${API_BASE_URL}/insight`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      body: formData,
+    });
+
+    const json = await readJsonResponse<InsightResponse>(response);
+
+    if (!response.ok || !json.success || !json.data) {
+      throw new Error(json.message || 'Unable to load insight detail.');
+    }
+
+    return json.data;
+  } catch (error) {
+    console.log('getInsightDetail error:', error);
+
+    throw new Error(getErrorMessage('Unable to load insight detail.', error));
   }
 }

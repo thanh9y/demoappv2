@@ -1,5 +1,5 @@
-import {openChat, openPhone} from 'zmp-sdk/apis';
-
+import {openChat, openPhone,openWebview} from 'zmp-sdk/apis';
+import type {Feature, FeatureCollection, Geometry, GeoJsonProperties} from 'geojson';
 import {
   getDisplayPrice,
   getDisplaySqrPrice,
@@ -7,7 +7,6 @@ import {
 import type {PropertyFilters, Rsitem} from '@/types/rsitem';
 
 import type {MapItem} from './types';
-
 export function getDistanceInMeters(a: MapItem, b: MapItem) {
   const earthRadius = 6371000;
 
@@ -325,28 +324,37 @@ export async function openZaloChatByPhone(item: Rsitem) {
   }
 
   /**
-   * Cách mở chat Zalo chuẩn cần zaloUserId.
-   * API hiện tại của bạn chưa có zaloUserId,
-   * nên không thể kiểm tra chắc chắn số này có đăng ký Zalo hay không.
+   * Cách chuẩn nhất: nếu API có zaloUserId thì mở chat trực tiếp.
    */
-  if (!zaloUserId) {
-    alert(
-      `Không thể mở chat Zalo trực tiếp với số ${phoneNumber}.\n\nCó thể số này chưa đăng ký Zalo hoặc API chưa cung cấp Zalo User ID. Bạn có thể bấm Gọi để liên hệ.`,
-    );
-    return;
+  if (zaloUserId) {
+    try {
+      await openChat({
+        type: 'user',
+        id: zaloUserId,
+        message: 'Xin chào, tôi quan tâm bất động sản này.',
+      });
+      return;
+    } catch (error) {
+      console.log('Open Zalo chat by user id failed:', error);
+    }
   }
 
+  /**
+   * Cách dự phòng: API chưa có zaloUserId thì thử mở theo số điện thoại.
+   * Không dùng zalo:// để tránh bị đẩy sang CH Play.
+   */
   try {
-    await openChat({
-      type: 'user',
-      id: zaloUserId,
-      message: 'Xin chào, tôi quan tâm bất động sản này.',
+    await openWebview({
+      url: `https://zalo.me/${phoneNumber}`,
+      config: {
+        style: 'normal',
+      },
     });
   } catch (error) {
-    console.log('Open Zalo chat failed:', error);
+    console.log('Open Zalo by phone failed:', error);
 
     alert(
-      `Không thể mở chat Zalo với số ${phoneNumber}. Có thể tài khoản này không tồn tại hoặc không cho phép liên hệ.`,
+      `Không thể mở Zalo với số ${phoneNumber}. Có thể số này chưa đăng ký Zalo hoặc không cho phép tìm kiếm bằng số điện thoại.`,
     );
   }
 }
@@ -404,4 +412,180 @@ export function toggleFavoriteRsitem(item: Rsitem) {
   localStorage.setItem(FAVORITE_RSITEM_IDS_KEY, JSON.stringify(nextIds));
 
   return nextIds.includes(itemId);
+}
+function isValidGeoJsonGeometry(value: unknown): value is Geometry {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const geometry = value as {
+    type?: unknown;
+    coordinates?: unknown;
+    geometries?: unknown;
+  };
+
+  if (typeof geometry.type !== 'string') {
+    return false;
+  }
+
+  if (geometry.type === 'GeometryCollection') {
+    return Array.isArray(geometry.geometries);
+  }
+
+  return Array.isArray(geometry.coordinates);
+}
+
+function parseGeojsonGeometry(value?: string | null): Geometry | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+
+    if (isValidGeoJsonGeometry(parsed)) {
+      return parsed;
+    }
+
+    if (parsed?.type === 'Feature' && isValidGeoJsonGeometry(parsed.geometry)) {
+      return parsed.geometry;
+    }
+
+    return null;
+  } catch (error) {
+    console.log('Parse geojson failed:', error);
+    return null;
+  }
+}
+
+function parseGeojson3DFeatures(
+  value?: string | null,
+): Feature<Geometry, GeoJsonProperties>[] {
+  if (!value) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter(feature => {
+          return (
+            feature &&
+            feature.type === 'Feature' &&
+            isValidGeoJsonGeometry(feature.geometry)
+          );
+        })
+        .map(feature => feature as Feature<Geometry, GeoJsonProperties>);
+    }
+
+    if (parsed?.type === 'Feature' && isValidGeoJsonGeometry(parsed.geometry)) {
+      return [parsed as Feature<Geometry, GeoJsonProperties>];
+    }
+
+    if (
+      parsed?.type === 'FeatureCollection' &&
+      Array.isArray(parsed.features)
+    ) {
+      return parsed.features
+        .filter((feature: unknown) => {
+          const item = feature as {
+            type?: unknown;
+            geometry?: unknown;
+          };
+
+          return (
+            item &&
+            item.type === 'Feature' &&
+            isValidGeoJsonGeometry(item.geometry)
+          );
+        })
+        .map(
+          (feature: unknown) =>
+            feature as Feature<Geometry, GeoJsonProperties>,
+        );
+    }
+
+    return [];
+  } catch (error) {
+    console.log('Parse geojson3D failed:', error);
+    return [];
+  }
+}
+
+function getNumberValue(value: unknown, fallback: number) {
+  const number = Number(value);
+
+  return Number.isFinite(number) ? number : fallback;
+}
+
+export function hasGeojson(item: Rsitem) {
+  return Boolean(parseGeojsonGeometry(item.geojson));
+}
+
+export function hasGeojson3D(item: Rsitem) {
+  return parseGeojson3DFeatures(item.geojson3D).length > 0;
+}
+
+export function getGeojsonFeatureCollection(
+  items: Rsitem[],
+): FeatureCollection<Geometry, GeoJsonProperties> {
+  const features: Feature<Geometry, GeoJsonProperties>[] = items.flatMap(
+    item => {
+      const geometry = parseGeojsonGeometry(item.geojson);
+
+      if (!geometry) {
+        return [];
+      }
+
+      return [
+        {
+          type: 'Feature',
+          geometry,
+          properties: {
+            rsitemId: String(item.id),
+            title: item.title || '',
+            _fillColor: '#2563eb',
+            _lineColor: '#1d4ed8',
+          },
+        },
+      ];
+    },
+  );
+
+  return {
+    type: 'FeatureCollection',
+    features,
+  };
+}
+
+export function getGeojson3DFeatureCollection(
+  items: Rsitem[],
+): FeatureCollection<Geometry, GeoJsonProperties> {
+  const features: Feature<Geometry, GeoJsonProperties>[] = items.flatMap(
+    item => {
+      return parseGeojson3DFeatures(item.geojson3D).map(feature => {
+        const properties = feature.properties ?? {};
+
+        return {
+          type: 'Feature',
+          geometry: feature.geometry,
+          properties: {
+            ...properties,
+            rsitemId: String(item.id),
+            title: String(item.title || properties.name || ''),
+            _height: getNumberValue(properties.height, 8),
+            _baseHeight: getNumberValue(properties.base_height, 0),
+            _color: String(properties.color || '#FFE066'),
+          },
+        };
+      });
+    },
+  );
+
+  return {
+    type: 'FeatureCollection',
+    features,
+  };
 }
