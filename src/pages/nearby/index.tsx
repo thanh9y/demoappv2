@@ -278,18 +278,20 @@ export default function NearbyPage() {
             </Box>
           </Box>
 
-          <Box className="result-toolbar">
-            <Text className="result-count">
-              {visibleItems.length} bất động sản
-            </Text>
+         {viewMode === 'list' ? (
+  <Box className="result-toolbar">
+    <Text className="result-count">
+      {visibleItems.length} bất động sản
+    </Text>
 
-            <button
-              type="button"
-              className="sort-button"
-              onClick={() => setShowSort(true)}>
-              Sắp xếp ⇅
-            </button>
-          </Box>
+    <button
+      type="button"
+      className="sort-button"
+      onClick={() => setShowSort(true)}>
+      Sắp xếp ⇅
+    </button>
+  </Box>
+) : null}
 
           {loading ? (
             <Box className="loading-box">

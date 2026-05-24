@@ -1014,7 +1014,10 @@
 
 .sheet-backdrop {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 2147483647;
   background: rgba(15, 23, 42, 0.35);
   display: flex;
@@ -1765,4 +1768,95 @@
     padding: 0 14px;
   }
 }
+/* =========================
+   MAP CARD + TOOLBAR FIX
+========================= */
+.result-toolbar {
+  position: -webkit-sticky;
+  position: sticky;
+  top: calc(138px + env(safe-area-inset-top, 0px));
+  z-index: 35;
+  background: #f4f7fb;
+  padding: 12px 14px;
+  border-bottom: 1px solid #edf1f6;
+}
 
+.search-header {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #f4f7fb;
+}
+/* Khóa thanh "72 bất động sản / Sắp xếp" */
+
+
+/* Đẩy card thông tin trên map lên cao hơn nút Danh sách */
+.map-bottom-carousel {
+  bottom: 136px;
+  z-index: 25;
+}
+
+/* Nút Danh sách nằm dưới card thông tin */
+.floating-map-button {
+  bottom: 76px;
+  z-index: 30;
+}
+
+/* Card trên map rộng và gọn hơn */
+.map-card-page {
+  flex: 0 0 calc(100vw - 28px);
+  max-width: calc(100vw - 28px);
+}
+
+.map-property-card {
+  min-height: 104px;
+  padding: 10px;
+  border-radius: 18px;
+}
+
+.map-property-image {
+  width: 76px;
+  height: 76px;
+  flex: 0 0 76px;
+  border-radius: 14px;
+}
+
+.map-property-info {
+  min-width: 0;
+}
+
+.map-property-title {
+  font-size: 14px;
+  line-height: 19px;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.map-property-price {
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.map-property-meta,
+.map-property-address {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Khi màn hình nhỏ, vẫn giữ khoảng cách */
+@media (max-width: 380px) {
+  .result-toolbar {
+    top: calc(132px + env(safe-area-inset-top, 0px));
+  }
+
+  .map-bottom-carousel {
+    bottom: 130px;
+  }
+
+  .floating-map-button {
+    bottom: 72px;
+  }
+}

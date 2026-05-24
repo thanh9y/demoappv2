@@ -1,14 +1,108 @@
-.page {
-  padding: 16px 16px 96px 16px;
+/* =========================
+   CUSTOM BOTTOM NAVIGATION
+========================= */
+
+.app-bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  height: calc(66px + env(safe-area-inset-bottom, 0px));
+  padding: 7px 12px calc(7px + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.98);
+  border-top: 1px solid #e5eaf1;
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.section-container {
-  padding: 16px;
-  background: #ffffff;
-  border-radius: 8px;
-  margin-bottom: 24px;
+.app-bottom-nav-item {
+  flex: 1;
+  height: 54px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
-.zaui-list-item {
-  cursor: pointer;
+.app-bottom-nav-item.active {
+  background: #eff6ff;
+  color: #1677ff;
+}
+
+.app-bottom-nav-item.active .app-nav-icon-wrap {
+  background: #1677ff;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(22, 119, 255, 0.28);
+}
+
+.app-bottom-nav-item.active .app-nav-label {
+  color: #1677ff;
+  font-weight: 900;
+}
+
+.app-nav-icon-wrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.app-nav-svg {
+  width: 22px;
+  height: 22px;
+}
+
+.app-nav-label {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 800;
+}
+
+@media (max-width: 360px) {
+  .app-bottom-nav {
+    height: calc(62px + env(safe-area-inset-bottom, 0px));
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .app-bottom-nav-item {
+    height: 50px;
+    gap: 4px;
+  }
+
+  .app-nav-icon-wrap {
+    width: 28px;
+    height: 28px;
+  }
+
+  .app-nav-svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .app-nav-label {
+    font-size: 11px;
+  }
 }

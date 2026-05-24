@@ -27,6 +27,7 @@ type AccountView =
   | 'agentDetail'
   | 'insightDetail'
   | 'propertyDetail';
+  type InsightDisplayMode = 'list' | 'grid';
 
 const DEFAULT_AGENT_AVATAR = 'https://data.nks.vn//storage/users/default.png';
 const DEFAULT_POST_IMAGE = 'https://placehold.co/800x500?text=No+Image';
@@ -193,7 +194,36 @@ function AgentListCard({
     </button>
   );
 }
+function InsightGridCard({
+  post,
+  onClick,
+}: {
+  post: Insight;
+  onClick: (post: Insight) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="account-post-grid-card"
+      onClick={() => onClick(post)}>
+      <img
+        className="account-post-grid-image"
+        src={getPostImage(post)}
+        alt={post.title || 'Tin tức'}
+      />
 
+      <Box className="account-post-grid-content">
+        <Text className="account-post-grid-title">
+          {post.title || 'Bài viết'}
+        </Text>
+
+        <Text className="account-post-grid-date">
+          {post.formatedDate || 'Đang cập nhật'}
+        </Text>
+      </Box>
+    </button>
+  );
+}
 function InsightCard({
   post,
   onClick,
@@ -322,6 +352,8 @@ const [previousView, setPreviousView] = useState<AccountView>('home');
   );
 
   const [agentKeyword, setAgentKeyword] = useState('');
+  const [insightDisplayMode, setInsightDisplayMode] =
+  useState<InsightDisplayMode>('list');
   const [loading, setLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -611,27 +643,59 @@ setAllRsitems(rsitemData);
         </Box>
       ) : null}
 
-      {view === 'insights' ? (
-        <Box className="account-sub-page">
-          <Box className="account-topbar">
-            <button type="button" className="account-back" onClick={goBack}>
-              ←
-            </button>
+     {view === 'insights' ? (
+  <Box className="account-sub-page">
+    <Box className="account-topbar">
+      <button type="button" className="account-back" onClick={goBack}>
+        ←
+      </button>
 
-            <Text className="account-topbar-title">Tin tức hoạt động</Text>
-          </Box>
+      <Text className="account-topbar-title">Tin tức hoạt động</Text>
+    </Box>
 
-          <Box className="account-post-list account-post-list-full">
-            {insights.map(post => (
-              <InsightCard
-                key={post.slug}
-                post={post}
-                onClick={openInsight}
-              />
-            ))}
-          </Box>
-        </Box>
-      ) : null}
+    <Box className="account-view-mode-row">
+      <button
+        type="button"
+        className={`account-view-mode-button ${
+          insightDisplayMode === 'list' ? 'active' : ''
+        }`}
+        onClick={() => setInsightDisplayMode('list')}>
+        ☰ Danh sách
+      </button>
+
+      <button
+        type="button"
+        className={`account-view-mode-button ${
+          insightDisplayMode === 'grid' ? 'active' : ''
+        }`}
+        onClick={() => setInsightDisplayMode('grid')}>
+        ▦ Lưới
+      </button>
+    </Box>
+
+    {insightDisplayMode === 'list' ? (
+      <Box className="account-post-list account-post-list-full">
+        {insights.map(post => (
+          <InsightCard
+            key={post.slug}
+            post={post}
+            onClick={openInsight}
+          />
+        ))}
+      </Box>
+    ) : (
+      <Box className="account-post-grid">
+        {insights.map(post => (
+          <InsightGridCard
+            key={post.slug}
+            post={post}
+            onClick={openInsight}
+          />
+        ))}
+      </Box>
+    )}
+  </Box>
+) : null}
 
       {view === 'agentDetail' ? (
         <Box className="account-sub-page">
