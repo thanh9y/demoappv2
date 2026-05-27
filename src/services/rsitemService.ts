@@ -14,6 +14,7 @@ type AgentResponse = {
   data?: RsAgent;
   message?: string;
 };
+
 type AgentsResponse = {
   success: boolean;
   option?: unknown;
@@ -34,6 +35,7 @@ type InsightResponse = {
   data?: InsightDetail;
   message?: string;
 };
+
 type ListResponse = {
   success: boolean;
   option?: unknown;
@@ -52,7 +54,6 @@ function getErrorMessage(defaultMessage: string, error: unknown) {
   if (error instanceof Error) {
     return error.message;
   }
-
   return defaultMessage;
 }
 
@@ -157,7 +158,7 @@ export function getDisplaySqrPrice(item: Rsitem) {
 }
 
 export function getItemImages(item: Rsitem) {
-  const galleryImages = item.gallery?.map(gallery => gallery.image) ?? [];
+  const galleryImages = item.gallery?.map((gallery) => gallery.image) ?? [];
 
   const images = [item.featureimg, ...galleryImages].filter(
     (image): image is string => Boolean(image),
@@ -175,7 +176,6 @@ export async function getRsitems() {
       headers: {
         Accept: 'application/json',
       },
-      
     });
 
     const json = await readJsonResponse<ListResponse>(response);
@@ -187,7 +187,6 @@ export async function getRsitems() {
     return json.data ?? [];
   } catch (error) {
     console.log('getRsitems error:', error);
-
     throw new Error(getErrorMessage('Unable to load properties.', error));
   }
 }
@@ -195,7 +194,6 @@ export async function getRsitems() {
 export async function getRsitemDetail(slug: string) {
   try {
     const formData = new FormData();
-
     formData.append('slug', slug);
 
     const response = await fetch(`${API_BASE_URL}/rsitem`, {
@@ -215,14 +213,15 @@ export async function getRsitemDetail(slug: string) {
     return json.data;
   } catch (error) {
     console.log('getRsitemDetail error:', error);
-
     throw new Error(getErrorMessage('Unable to load property detail.', error));
   }
 }
+
 export async function getRsagent(id: number | string) {
   try {
     const formData = new FormData();
     formData.append('id', String(id));
+
     const response = await fetch(`${API_BASE_URL}/rsagent`, {
       method: 'POST',
       headers: {
@@ -230,16 +229,20 @@ export async function getRsagent(id: number | string) {
       },
       body: formData,
     });
+
     const json = await readJsonResponse<AgentResponse>(response);
+
     if (!response.ok || !json.success || !json.data) {
       throw new Error(json.message || 'Unable to load agent detail.');
     }
+
     return json.data;
   } catch (error) {
     console.log('getRsagent error:', error);
     throw new Error(getErrorMessage('Unable to load agent detail.', error));
   }
 }
+
 export async function getRsagents() {
   try {
     const response = await fetch(`${API_BASE_URL}/rsagents`, {
@@ -258,7 +261,6 @@ export async function getRsagents() {
     return json.data ?? [];
   } catch (error) {
     console.log('getRsagents error:', error);
-
     throw new Error(getErrorMessage('Unable to load agents.', error));
   }
 }
@@ -281,7 +283,6 @@ export async function getInsights() {
     return json.data ?? [];
   } catch (error) {
     console.log('getInsights error:', error);
-
     throw new Error(getErrorMessage('Unable to load insights.', error));
   }
 }
@@ -289,7 +290,6 @@ export async function getInsights() {
 export async function getInsightDetail(slug: string) {
   try {
     const formData = new FormData();
-
     formData.append('slug', slug);
 
     const response = await fetch(`${API_BASE_URL}/insight`, {
@@ -309,7 +309,6 @@ export async function getInsightDetail(slug: string) {
     return json.data;
   } catch (error) {
     console.log('getInsightDetail error:', error);
-
     throw new Error(getErrorMessage('Unable to load insight detail.', error));
   }
 }

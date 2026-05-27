@@ -6,9 +6,10 @@
 }
 
 .account-header {
-  padding: calc(108px + env(safe-area-inset-top, 0px)) 18px 18px;
+  padding: 18px 18px 18px;
   background: #f4f7fb;
 }
+
 .account-title {
   color: #111827;
   font-size: 24px;
@@ -92,7 +93,7 @@
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -moz-box-orient: vertical;
--webkit-box-orient: vertical;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
@@ -132,7 +133,7 @@
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -moz-box-orient: vertical;
--webkit-box-orient: vertical;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
@@ -153,7 +154,7 @@
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -moz-box-orient: vertical;
--webkit-box-orient: vertical;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
@@ -189,15 +190,15 @@
 .account-sub-page {
   min-height: 100vh;
   background: #f4f7fb;
-  padding: calc(118px + env(safe-area-inset-top, 0px)) 14px 96px;
+  padding: 18px 14px 96px;
 }
 
 .account-topbar {
   position: fixed;
   left: 0;
   right: 0;
-  top: calc(46px + env(safe-area-inset-top, 0px));
-  z-index: 20;
+  top: calc(var(--app-header-height) + env(safe-area-inset-top, 0px));
+  z-index: 920;
   height: 56px;
   padding: 0 14px;
   background: rgba(246, 248, 252, 0.98);
@@ -205,22 +206,27 @@
   display: flex;
   align-items: center;
 }
+
 .account-back {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   margin-right: 12px;
+  padding: 0;
   border: 0;
   border-radius: 999px;
   background: #ffffff;
-  color: #111827;
-  font-size: 22px;
-  font-weight: 900;
-  line-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 5px 16px rgba(15, 23, 42, 0.1);
 }
+
+.account-back-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
 .account-topbar-title {
   color: #111827;
   font-size: 18px;
@@ -382,6 +388,7 @@
   font-weight: 700;
 }
 
+.account-decay-section-title,
 .account-detail-section-title {
   margin-top: 20px;
   margin-bottom: 12px;
@@ -495,6 +502,7 @@
   line-height: 22px;
   font-weight: 700;
 }
+
 /* =========================
    ACCOUNT VIEW MODE
 ========================= */
@@ -507,23 +515,6 @@
   display: flex;
   align-items: center;
   box-shadow: inset 0 0 0 1px #d6deea;
-}
-
-.account-view-mode-button {
-  flex: 1;
-  height: 42px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: #64748b;
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.account-view-mode-button.active {
-  background: #ffffff;
-  color: #1677ff;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
 }
 
 .account-view-mode-button {
@@ -565,7 +556,6 @@
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
 }
 
-
 .account-post-grid-image {
   width: 100%;
   height: 112px;
@@ -595,4 +585,16 @@
   color: #64748b;
   font-size: 12px;
   font-weight: 800;
+}
+
+/* =========================
+   OVERLAY MODES & OVERRIDES
+========================= */
+
+.account-topbar {
+  display: none;
+}
+
+.account-sub-page {
+  padding: 18px 14px 24px;
 }

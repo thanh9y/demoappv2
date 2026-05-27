@@ -137,7 +137,7 @@ function SalePostCard({
 export default function SaleProfileView({
   saleItem,
   allItems,
-  onBack,
+
   onOpenDetail,
 }: SaleProfileViewProps) {
   const [activeTab, setActiveTab] = useState<SaleTab>('sale');
@@ -210,9 +210,7 @@ export default function SaleProfileView({
   return (
     <Box className="sale-profile-page">
       <Box className="sale-profile-header">
-        <button type="button" className="sale-profile-back" onClick={onBack}>
-          ←
-        </button>
+        
 
         <Box className="sale-cover" />
 

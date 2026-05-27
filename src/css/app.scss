@@ -1,4 +1,97 @@
 /* =========================
+   APP COMMON LAYOUT
+========================= */
+
+:root {
+  --app-header-height: 104px;
+  --app-footer-height: 66px;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background: #f4f7fb;
+}
+
+.app-header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 900;
+  height: calc(var(--app-header-height) + env(safe-area-inset-top, 0px));
+  padding: calc(30px + env(safe-area-inset-top, 0px)) 18px 12px;
+  background: rgba(244, 247, 251, 0.98);
+  border-bottom: 1px solid #e5eaf1;
+  display: flex;
+  align-items: center;
+}
+
+.app-header-brand {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+}
+
+.app-header-back {
+  width: 42px;
+  height: 42px;
+  margin-right: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.12);
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.app-header-back-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.app-header-logo {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.app-header-text {
+  margin-left: 10px;
+  min-width: 0;
+}
+
+.app-header-title {
+  color: #0f172a;
+  font-size: 22px;
+  line-height: 26px;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-header-subtitle {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 800;
+}
+
+.app-body {
+  min-height: 100vh;
+  padding-top: calc(var(--app-header-height) + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--app-footer-height) + env(safe-area-inset-bottom, 0px));
+}
+
+/* =========================
    CUSTOM BOTTOM NAVIGATION
 ========================= */
 
@@ -7,8 +100,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999;
-  height: calc(66px + env(safe-area-inset-bottom, 0px));
+  z-index: 950;
+  height: calc(var(--app-footer-height) + env(safe-area-inset-bottom, 0px));
   padding: 7px 12px calc(7px + env(safe-area-inset-bottom, 0px));
   background: rgba(255, 255, 255, 0.98);
   border-top: 1px solid #e5eaf1;
@@ -34,6 +127,7 @@
     background 0.18s ease,
     color 0.18s ease,
     transform 0.18s ease;
+  cursor: pointer;
 }
 
 .app-bottom-nav-item.active {
@@ -80,9 +174,29 @@
   font-weight: 800;
 }
 
+/* =========================
+   DETAIL MODE HANDLER
+========================= */
+
+.app-detail-mode .app-body {
+  padding-bottom: 0;
+}
+
+/* =========================
+   RESPONSIVE (MOBILE SMALL)
+========================= */
+
 @media (max-width: 360px) {
+  :root {
+    --app-header-height: 98px;
+    --app-footer-height: 62px;
+  }
+
+  .app-header {
+    padding-top: calc(28px + env(safe-area-inset-top, 0px));
+  }
+
   .app-bottom-nav {
-    height: calc(62px + env(safe-area-inset-bottom, 0px));
     padding-left: 8px;
     padding-right: 8px;
   }

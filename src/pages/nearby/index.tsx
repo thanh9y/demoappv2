@@ -31,6 +31,17 @@ hasListingTypeFilter,
 
 import './style.scss';
 import SaleProfileView from './components/SaleProfileView';
+function setAppHeaderBack(visible: boolean, onBack?: () => void) {
+  window.dispatchEvent(
+    new CustomEvent('app-header-back', {
+      detail: {
+        visible,
+        onBack,
+      },
+    }),
+  );
+}
+
 export default function NearbyPage() {
   const [mapFocusItem, setMapFocusItem] = useState<Rsitem | null>(null);
   const [items, setItems] = useState<Rsitem[]>([]);
@@ -161,7 +172,27 @@ export default function NearbyPage() {
   const closeSaleProfile = () => {
     setSaleItem(null);
   };
+useEffect(() => {
+  if (saleItem) {
+    setAppHeaderBack(true, closeSaleProfile);
 
+    return () => {
+      setAppHeaderBack(false);
+    };
+  }
+
+  if (detailItem) {
+    setAppHeaderBack(true, closeDetail);
+
+    return () => {
+      setAppHeaderBack(false);
+    };
+  }
+
+  setAppHeaderBack(false);
+
+  return undefined;
+}, [saleItem, detailItem]);
   const viewDetailOnMap = (item: Rsitem) => {
     setDetailItem(null);
     setMapFocusItem(item);
@@ -175,6 +206,27 @@ export default function NearbyPage() {
     setShowFilters(true);
   };
 
+useEffect(() => {
+  if (saleItem) {
+    setAppHeaderBack(true, closeSaleProfile);
+
+    return () => {
+      setAppHeaderBack(false);
+    };
+  }
+
+  if (detailItem) {
+    setAppHeaderBack(true, closeDetail);
+
+    return () => {
+      setAppHeaderBack(false);
+    };
+  }
+
+  setAppHeaderBack(false);
+
+  return undefined;
+}, [saleItem, detailItem]);
   return (
     <Page className="nearby-page">
   {saleItem ? (

@@ -1,28 +1,38 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Box, Page, Spinner, Text} from 'zmp-ui';
 
-import {
-  getRsitemDetail,
-  getRsitems,
-} from '@/services/rsitemService';
+import {getRsitemDetail, getRsitems} from '@/services/rsitemService';
 import type {Rsitem} from '@/types/rsitem';
 
 import PropertyCard from '@/pages/nearby/components/PropertyCard';
 import PropertyDetailView from '@/pages/nearby/components/PropertyDetailView';
 import SaleProfileView from '@/pages/nearby/components/SaleProfileView';
+
 import {
-  getFavoriteRsitemIds,
   isFavoriteRsitem,
 } from '@/pages/nearby/helpers';
 
 import '@/pages/nearby/style.scss';
 
+function setAppHeaderBack(visible: boolean, onBack?: () => void) {
+  window.dispatchEvent(
+    new CustomEvent('app-header-back', {
+      detail: {
+        visible,
+        onBack,
+      },
+    }),
+  );
+}
+
 export default function SavedPage() {
   const [items, setItems] = useState<Rsitem[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
   const [detailItem, setDetailItem] = useState<Rsitem | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+
   const [saleItem, setSaleItem] = useState<Rsitem | null>(null);
 
   const loadItems = async () => {
@@ -43,11 +53,13 @@ export default function SavedPage() {
     }
   };
 
-  useEffect(() => {
-    loadItems();
-  }, []);
+  const closeDetail = () => {
+    setDetailItem(null);
+  };
 
-  const favoriteIds = useMemo(() => getFavoriteRsitemIds(), [items]);
+  const closeSaleProfile = () => {
+    setSaleItem(null);
+  };
 
   const openDetail = async (item: Rsitem) => {
     try {
@@ -69,10 +81,6 @@ export default function SavedPage() {
     }
   };
 
-  const closeDetail = () => {
-    setDetailItem(null);
-  };
-
   const openSaleProfile = (item: Rsitem) => {
     if (!item.sale) {
       return;
@@ -82,10 +90,6 @@ export default function SavedPage() {
     setDetailItem(null);
   };
 
-  const closeSaleProfile = () => {
-    setSaleItem(null);
-  };
-
   const removeItemFromSavedList = (item: Rsitem, saved: boolean) => {
     if (saved) {
       return;
@@ -93,6 +97,28 @@ export default function SavedPage() {
 
     setItems(prev => prev.filter(value => String(value.id) !== String(item.id)));
   };
+
+  useEffect(() => {
+    loadItems();
+
+    return () => {
+      setAppHeaderBack(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (saleItem) {
+      setAppHeaderBack(true, closeSaleProfile);
+      return;
+    }
+
+    if (detailItem) {
+      setAppHeaderBack(true, closeDetail);
+      return;
+    }
+
+    setAppHeaderBack(false);
+  }, [saleItem, detailItem]);
 
   if (saleItem) {
     return (

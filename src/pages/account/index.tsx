@@ -1,6 +1,6 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {Box, Page, Spinner, Text} from 'zmp-ui';
-
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Page, Spinner, Text } from 'zmp-ui';
+import backIcon from '@/assets/back.png';
 import {
   getDisplayPrice,
   getInsightDetail,
@@ -20,6 +20,7 @@ import type {
 
 import './style.scss';
 import PropertyDetailView from '@/pages/nearby/components/PropertyDetailView';
+
 type AccountView =
   | 'home'
   | 'agents'
@@ -27,7 +28,7 @@ type AccountView =
   | 'agentDetail'
   | 'insightDetail'
   | 'propertyDetail';
-  type InsightDisplayMode = 'list' | 'grid';
+type InsightDisplayMode = 'list' | 'grid';
 
 const DEFAULT_AGENT_AVATAR = 'https://data.nks.vn//storage/users/default.png';
 const DEFAULT_POST_IMAGE = 'https://placehold.co/800x500?text=No+Image';
@@ -51,6 +52,14 @@ function getAgentName(agent?: RsAgentSummary | RsAgent | null) {
   return agent?.name || 'Môi giới';
 }
 
+function AccountBackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" className="account-back" onClick={onClick}>
+      <img src={backIcon} alt="Back" className="account-back-icon" />
+    </button>
+  );
+}
+
 function getAgentMeta(agent: RsAgentSummary | RsAgent) {
   const parts: string[] = [];
 
@@ -72,10 +81,11 @@ function getAgentMeta(agent: RsAgentSummary | RsAgent) {
 
   return parts.length > 0 ? parts.join(' / ') : 'Đang cập nhật';
 }
+
 function getAgentsFromRsitems(items: Rsitem[]): RsAgentSummary[] {
   const agentMap = new Map<number, RsAgentSummary>();
 
-  items.forEach(item => {
+  items.forEach((item) => {
     const sale = item.sale;
 
     if (!sale?.id) {
@@ -103,11 +113,11 @@ function mergeAgents(
 ) {
   const agentMap = new Map<number, RsAgentSummary>();
 
-  apiAgents.forEach(agent => {
+  apiAgents.forEach((agent) => {
     agentMap.set(agent.id, agent);
   });
 
-  itemAgents.forEach(agent => {
+  itemAgents.forEach((agent) => {
     const existed = agentMap.get(agent.id);
 
     if (!existed) {
@@ -148,16 +158,14 @@ function AgentCircleCard({
     <button
       type="button"
       className="account-agent-circle-card"
-      onClick={() => onClick(agent)}>
+      onClick={() => onClick(agent)}
+    >
       <img
         className="account-agent-circle-avatar"
         src={getAgentAvatar(agent)}
         alt={getAgentName(agent)}
       />
-
-      <Text className="account-agent-circle-name">
-        {getAgentName(agent)}
-      </Text>
+      <Text className="account-agent-circle-name">{getAgentName(agent)}</Text>
     </button>
   );
 }
@@ -173,7 +181,8 @@ function AgentListCard({
     <button
       type="button"
       className="account-agent-list-card"
-      onClick={() => onClick(agent)}>
+      onClick={() => onClick(agent)}
+    >
       <img
         className="account-agent-list-avatar"
         src={getAgentAvatar(agent)}
@@ -181,19 +190,15 @@ function AgentListCard({
       />
 
       <Box className="account-agent-list-info">
-        <Text className="account-agent-list-name">
-          {getAgentName(agent)}
-        </Text>
-
-        <Text className="account-agent-list-meta">
-          {getAgentMeta(agent)}
-        </Text>
+        <Text className="account-agent-list-name">{getAgentName(agent)}</Text>
+        <Text className="account-agent-list-meta">{getAgentMeta(agent)}</Text>
       </Box>
 
       <span className="account-card-arrow">›</span>
     </button>
   );
 }
+
 function InsightGridCard({
   post,
   onClick,
@@ -205,7 +210,8 @@ function InsightGridCard({
     <button
       type="button"
       className="account-post-grid-card"
-      onClick={() => onClick(post)}>
+      onClick={() => onClick(post)}
+    >
       <img
         className="account-post-grid-image"
         src={getPostImage(post)}
@@ -216,7 +222,6 @@ function InsightGridCard({
         <Text className="account-post-grid-title">
           {post.title || 'Bài viết'}
         </Text>
-
         <Text className="account-post-grid-date">
           {post.formatedDate || 'Đang cập nhật'}
         </Text>
@@ -224,6 +229,7 @@ function InsightGridCard({
     </button>
   );
 }
+
 function InsightCard({
   post,
   onClick,
@@ -235,7 +241,8 @@ function InsightCard({
     <button
       type="button"
       className="account-post-card"
-      onClick={() => onClick(post)}>
+      onClick={() => onClick(post)}
+    >
       <img
         className="account-post-image"
         src={getPostImage(post)}
@@ -243,22 +250,19 @@ function InsightCard({
       />
 
       <Box className="account-post-content">
-        <Text className="account-post-title">
-          {post.title || 'Bài viết'}
-        </Text>
+        <Text className="account-post-title">{post.title || 'Bài viết'}</Text>
 
         <Text className="account-post-date">
           {post.formatedDate || 'Đang cập nhật'} ·{' '}
           {post.postCategory || 'Tin tức'}
         </Text>
 
-        <Text className="account-post-excerpt">
-          {getPostExcerpt(post)}
-        </Text>
+        <Text className="account-post-excerpt">{getPostExcerpt(post)}</Text>
       </Box>
     </button>
   );
 }
+
 function normalizeImageUrl(url?: string | null) {
   if (!url) {
     return '';
@@ -280,7 +284,7 @@ function isPlaceholderImage(url?: string | null) {
 }
 
 function getAgentPropertyImage(item: Rsitem) {
-  const galleryImage = item.gallery?.find(gallery => gallery.image)?.image;
+  const galleryImage = item.gallery?.find((gallery) => gallery.image)?.image;
 
   if (galleryImage) {
     return normalizeImageUrl(galleryImage);
@@ -296,6 +300,7 @@ function getAgentPropertyImage(item: Rsitem) {
 
   return DEFAULT_POST_IMAGE;
 }
+
 function AgentPropertyCard({
   item,
   onClick,
@@ -307,7 +312,8 @@ function AgentPropertyCard({
     <button
       type="button"
       className="account-agent-property-card"
-      onClick={() => onClick(item)}>
+      onClick={() => onClick(item)}
+    >
       <img
         className="account-agent-property-image"
         src={getAgentPropertyImage(item)}
@@ -332,6 +338,17 @@ function AgentPropertyCard({
 }
 
 export default function AccountPage() {
+  function setAppHeaderBack(visible: boolean, onBack?: () => void) {
+    window.dispatchEvent(
+      new CustomEvent('app-header-back', {
+        detail: {
+          visible,
+          onBack,
+        },
+      }),
+    );
+  }
+
   const [view, setView] = useState<AccountView>('home');
 
   const [agents, setAgents] = useState<RsAgentSummary[]>([]);
@@ -345,46 +362,46 @@ export default function AccountPage() {
 
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Rsitem | null>(null);
-const [propertyDetail, setPropertyDetail] = useState<Rsitem | null>(null);
-const [previousView, setPreviousView] = useState<AccountView>('home');
+  const [propertyDetail, setPropertyDetail] = useState<Rsitem | null>(null);
+  const [previousView, setPreviousView] = useState<AccountView>('home');
   const [insightDetail, setInsightDetail] = useState<InsightDetail | null>(
     null,
   );
 
   const [agentKeyword, setAgentKeyword] = useState('');
   const [insightDisplayMode, setInsightDisplayMode] =
-  useState<InsightDisplayMode>('list');
+    useState<InsightDisplayMode>('list');
   const [loading, setLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const loadData = async () => {
-  try {
-    setLoading(true);
-    setErrorMessage('');
+    try {
+      setLoading(true);
+      setErrorMessage('');
 
-    const [agentData, insightData, rsitemData] = await Promise.all([
-      getRsagents(),
-      getInsights(),
-      getRsitems(),
-    ]);
+      const [agentData, insightData, rsitemData] = await Promise.all([
+        getRsagents(),
+        getInsights(),
+        getRsitems(),
+      ]);
 
-    const itemAgents = getAgentsFromRsitems(rsitemData);
-    const mergedAgents = mergeAgents(agentData, itemAgents);
-setAllRsitems(rsitemData);
-    setAgents(mergedAgents);
-    setInsights(insightData);
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : 'Không thể tải dữ liệu tài khoản.';
+      const itemAgents = getAgentsFromRsitems(rsitemData);
+      const mergedAgents = mergeAgents(agentData, itemAgents);
+      setAllRsitems(rsitemData);
+      setAgents(mergedAgents);
+      setInsights(insightData);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Không thể tải dữ liệu tài khoản.';
 
-    setErrorMessage(message);
-  } finally {
-    setLoading(false);
-  }
-};
+      setErrorMessage(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -405,7 +422,7 @@ setAllRsitems(rsitemData);
       return agents;
     }
 
-    return agents.filter(agent => {
+    return agents.filter((agent) => {
       const text = [
         agent.name,
         agent.email,
@@ -418,38 +435,39 @@ setAllRsitems(rsitemData);
       return text.includes(keyword);
     });
   }, [agents, agentKeyword]);
+
   const selectedAgentPosts = useMemo(() => {
-  const agentId = agentDetail?.id ?? selectedAgent?.id;
+    const agentId = agentDetail?.id ?? selectedAgent?.id;
 
-  if (!agentId) {
-    return [];
-  }
+    if (!agentId) {
+      return [];
+    }
 
-  const postsFromAllItems = allRsitems.filter(item => {
-    return Number(item.sale?.id) === Number(agentId);
-  });
-
-  const postsFromDetail = agentDetail?.rsitems ?? [];
-
-  const postMap = new Map<number, Rsitem>();
-
-  postsFromAllItems.forEach(item => {
-    postMap.set(item.id, item);
-  });
-
-  postsFromDetail.forEach(item => {
-    const existed = postMap.get(item.id);
-
-    postMap.set(item.id, {
-      ...item,
-      ...existed,
-      gallery: existed?.gallery ?? item.gallery,
-      featureimg: existed?.featureimg || item.featureimg,
+    const postsFromAllItems = allRsitems.filter((item) => {
+      return Number(item.sale?.id) === Number(agentId);
     });
-  });
+
+    const postsFromDetail = agentDetail?.rsitems ?? [];
+
+    const postMap = new Map<number, Rsitem>();
+
+    postsFromAllItems.forEach((item) => {
+      postMap.set(item.id, item);
+    });
+
+    postsFromDetail.forEach((item) => {
+      const existed = postMap.get(item.id);
+
+      postMap.set(item.id, {
+        ...item,
+        ...existed,
+        gallery: existed?.gallery ?? item.gallery,
+        featureimg: existed?.featureimg || item.featureimg,
+      });
+    });
 
   return Array.from(postMap.values());
-}, [agentDetail, selectedAgent, allRsitems]);
+  }, [agentDetail, selectedAgent, allRsitems]);
 
   const openAgent = async (agent: RsAgentSummary) => {
     try {
@@ -488,32 +506,33 @@ setAllRsitems(rsitemData);
       setDetailLoading(false);
     }
   };
+
   const openPropertyDetail = async (item: Rsitem) => {
-  if (!item.slug) {
-    setSelectedProperty(item);
-    setPropertyDetail(item);
-    setPreviousView(view);
-    setView('propertyDetail');
-    return;
-  }
+    if (!item.slug) {
+      setSelectedProperty(item);
+      setPropertyDetail(item);
+      setPreviousView(view);
+      setView('propertyDetail');
+      return;
+    }
 
-  try {
-    setSelectedProperty(item);
-    setPropertyDetail(null);
-    setPreviousView(view);
-    setDetailLoading(true);
-    setView('propertyDetail');
+    try {
+      setSelectedProperty(item);
+      setPropertyDetail(null);
+      setPreviousView(view);
+      setDetailLoading(true);
+      setView('propertyDetail');
 
-    const detail = await getRsitemDetail(item.slug);
+      const detail = await getRsitemDetail(item.slug);
 
-    setPropertyDetail(detail);
-  } catch (error) {
-    console.log('Load property detail failed:', error);
-    setPropertyDetail(item);
-  } finally {
-    setDetailLoading(false);
-  }
-};
+      setPropertyDetail(detail);
+    } catch (error) {
+      console.log('Load property detail failed:', error);
+      setPropertyDetail(item);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   const goHome = () => {
     setView('home');
@@ -527,12 +546,37 @@ setAllRsitems(rsitemData);
     if (view === 'home') {
       return;
     }
+    
+    // Nếu đang từ chi tiết BĐS, quay lại màn hình trước đó thay vì đẩy thẳng về Home
+    if (view === 'propertyDetail') {
+      setView(previousView);
+      setSelectedProperty(null);
+      setPropertyDetail(null);
+      return;
+    }
+
+    if (view === 'agentDetail' && previousView === 'agents') {
+      setView('agents');
+      return;
+    }
 
     goHome();
   };
 
+  useEffect(() => {
+    if (view === 'home') {
+      setAppHeaderBack(false);
+      return undefined;
+    }
+
+    setAppHeaderBack(true, goBack);
+
+    return () => {
+      setAppHeaderBack(false);
+    };
+  }, [view, previousView]);
+
   return (
-    
     <Page className="account-page">
       {view === 'home' ? (
         <>
@@ -567,13 +611,14 @@ setAllRsitems(rsitemData);
                   <button
                     type="button"
                     className="account-view-all-button"
-                    onClick={() => setView('agents')}>
+                    onClick={() => setView('agents')}
+                  >
                     view all
                   </button>
                 </Box>
 
                 <Box className="account-agent-horizontal">
-                  {homeAgents.map(agent => (
+                  {homeAgents.map((agent) => (
                     <AgentCircleCard
                       key={agent.id}
                       agent={agent}
@@ -592,13 +637,14 @@ setAllRsitems(rsitemData);
                   <button
                     type="button"
                     className="account-view-all-button"
-                    onClick={() => setView('insights')}>
+                    onClick={() => setView('insights')}
+                  >
                     view all
                   </button>
                 </Box>
 
                 <Box className="account-post-list">
-                  {homeInsights.map(post => (
+                  {homeInsights.map((post) => (
                     <InsightCard
                       key={post.slug}
                       post={post}
@@ -616,7 +662,7 @@ setAllRsitems(rsitemData);
         <Box className="account-sub-page">
           <Box className="account-topbar">
             <button type="button" className="account-back" onClick={goBack}>
-              ←
+              <img src={backIcon} alt="Back" className="account-back-icon" />
             </button>
 
             <Text className="account-topbar-title">Cộng đồng môi giới</Text>
@@ -627,12 +673,12 @@ setAllRsitems(rsitemData);
               className="account-search-input"
               value={agentKeyword}
               placeholder="Search"
-              onChange={event => setAgentKeyword(event.target.value)}
+              onChange={(event) => setAgentKeyword(event.target.value)}
             />
           </Box>
 
           <Box className="account-agent-list">
-            {filteredAgents.map(agent => (
+            {filteredAgents.map((agent) => (
               <AgentListCard
                 key={agent.id}
                 agent={agent}
@@ -643,67 +689,63 @@ setAllRsitems(rsitemData);
         </Box>
       ) : null}
 
-     {view === 'insights' ? (
-  <Box className="account-sub-page">
-    <Box className="account-topbar">
-      <button type="button" className="account-back" onClick={goBack}>
-        ←
-      </button>
+      {view === 'insights' ? (
+        <Box className="account-sub-page">
+          <Box className="account-topbar">
+            <AccountBackButton onClick={goBack} />
+            <Text className="account-topbar-title">Tin tức hoạt động</Text>
+          </Box>
 
-      <Text className="account-topbar-title">Tin tức hoạt động</Text>
-    </Box>
+          <Box className="account-view-mode-row">
+            <button
+              type="button"
+              className={`account-view-mode-button ${
+                insightDisplayMode === 'list' ? 'active' : ''
+              }`}
+              onClick={() => setInsightDisplayMode('list')}
+            >
+              ☰ Danh sách
+            </button>
 
-    <Box className="account-view-mode-row">
-      <button
-        type="button"
-        className={`account-view-mode-button ${
-          insightDisplayMode === 'list' ? 'active' : ''
-        }`}
-        onClick={() => setInsightDisplayMode('list')}>
-        ☰ Danh sách
-      </button>
+            <button
+              type="button"
+              className={`account-view-mode-button ${
+                insightDisplayMode === 'grid' ? 'active' : ''
+              }`}
+              onClick={() => setInsightDisplayMode('grid')}
+            >
+              ▦ Lưới
+            </button>
+          </Box>
 
-      <button
-        type="button"
-        className={`account-view-mode-button ${
-          insightDisplayMode === 'grid' ? 'active' : ''
-        }`}
-        onClick={() => setInsightDisplayMode('grid')}>
-        ▦ Lưới
-      </button>
-    </Box>
-
-    {insightDisplayMode === 'list' ? (
-      <Box className="account-post-list account-post-list-full">
-        {insights.map(post => (
-          <InsightCard
-            key={post.slug}
-            post={post}
-            onClick={openInsight}
-          />
-        ))}
-      </Box>
-    ) : (
-      <Box className="account-post-grid">
-        {insights.map(post => (
-          <InsightGridCard
-            key={post.slug}
-            post={post}
-            onClick={openInsight}
-          />
-        ))}
-      </Box>
-    )}
-  </Box>
-) : null}
+          {insightDisplayMode === 'list' ? (
+            <Box className="account-post-list account-post-list-full">
+              {insights.map((post) => (
+                <InsightCard
+                  key={post.slug}
+                  post={post}
+                  onClick={openInsight}
+                />
+              ))}
+            </Box>
+          ) : (
+            <Box className="account-post-grid">
+              {insights.map((post) => (
+                <InsightGridCard
+                  key={post.slug}
+                  post={post}
+                  onClick={openInsight}
+                />
+              ))}
+            </Box>
+          )}
+        </Box>
+      ) : null}
 
       {view === 'agentDetail' ? (
         <Box className="account-sub-page">
           <Box className="account-topbar">
-            <button type="button" className="account-back" onClick={goBack}>
-              ←
-            </button>
-
+            <AccountBackButton onClick={goBack} />
             <Text className="account-topbar-title">Thông tin môi giới</Text>
           </Box>
 
@@ -745,18 +787,14 @@ setAllRsitems(rsitemData);
                 </Box>
 
                 <Box className="account-agent-detail-stat">
-                  <Text className="account-agent-detail-label">
-                    Tin đăng
-                  </Text>
+                  <Text className="account-agent-detail-label">Tin đăng</Text>
                   <Text className="account-agent-detail-value">
                     {agentDetail?.rsitem_count ?? selectedAgent?.rsitems ?? 0}
                   </Text>
                 </Box>
 
                 <Box className="account-agent-detail-stat">
-                  <Text className="account-agent-detail-label">
-                    Khu vực
-                  </Text>
+                  <Text className="account-agent-detail-label">Khu vực</Text>
                   <Text className="account-agent-detail-value">
                     {agentDetail?.rslocation || 'Đang cập nhật'}
                   </Text>
@@ -774,22 +812,22 @@ setAllRsitems(rsitemData);
               </Text>
 
               <Box className="account-agent-property-list">
-  {selectedAgentPosts.length > 0 ? (
-    selectedAgentPosts.map(item => (
-      <AgentPropertyCard
-  key={item.id}
-  item={item}
-  onClick={openPropertyDetail}
-/>
-    ))
-  ) : (
-    <Box className="account-agent-bio-box">
-      <Text className="account-agent-bio">
-        Chưa có tin đăng nào cho môi giới này.
-      </Text>
-    </Box>
-  )}
-</Box>
+                {selectedAgentPosts.length > 0 ? (
+                  selectedAgentPosts.map((item) => (
+                    <AgentPropertyCard
+                      key={item.id}
+                      item={item}
+                      onClick={openPropertyDetail}
+                    />
+                  ))
+                ) : (
+                  <Box className="account-agent-bio-box">
+                    <Text className="account-agent-bio">
+                      Chưa có tin đăng nào cho môi giới này.
+                    </Text>
+                  </Box>
+                )}
+              </Box>
             </Box>
           ) : null}
         </Box>
@@ -798,19 +836,14 @@ setAllRsitems(rsitemData);
       {view === 'insightDetail' ? (
         <Box className="account-sub-page">
           <Box className="account-topbar">
-            <button type="button" className="account-back" onClick={goBack}>
-              ←
-            </button>
-
+            <AccountBackButton onClick={goBack} />
             <Text className="account-topbar-title">Thông tin bài viết</Text>
           </Box>
 
           {detailLoading ? (
             <Box className="account-loading">
               <Spinner />
-              <Text className="account-loading-text">
-                Đang tải bài viết...
-              </Text>
+              <Text className="account-loading-text">Đang tải bài viết...</Text>
             </Box>
           ) : null}
 
@@ -829,9 +862,7 @@ setAllRsitems(rsitemData);
               <Text className="account-insight-detail-meta">
                 {(insightDetail || selectedInsight)?.formatedDate ||
                   'Đang cập nhật'}{' '}
-                ·{' '}
-                {(insightDetail || selectedInsight)?.postCategory ||
-                  'Tin tức'}
+                · {(insightDetail || selectedInsight)?.postCategory || 'Tin tức'}
               </Text>
 
               {insightDetail?.body ? (
@@ -851,30 +882,26 @@ setAllRsitems(rsitemData);
           ) : null}
         </Box>
       ) : null}
-      {view === 'propertyDetail' ? (
-  propertyDetail || selectedProperty ? (
-    <PropertyDetailView
-      item={propertyDetail || selectedProperty!}
-      loading={detailLoading}
-      onBack={() => {
-        setView(previousView);
-        setSelectedProperty(null);
-        setPropertyDetail(null);
-      }}
-      onViewMap={() => {
-        alert('Bạn vui lòng xem bản đồ ở tab Tìm kiếm.');
-      }}
-      onOpenSale={() => {
-        if (selectedAgent) {
-          setView('agentDetail');
-          return;
-        }
 
-        setView('home');
-      }}
-    />
-  ) : null
-) : null}
+      {view === 'propertyDetail' ? (
+        propertyDetail || selectedProperty ? (
+          <PropertyDetailView
+            item={propertyDetail || selectedProperty!}
+            loading={detailLoading}
+            onBack={goBack}
+            onViewMap={() => {
+              alert('Bạn vui lòng xem bản đồ ở tab Tìm kiếm.');
+            }}
+            onOpenSale={() => {
+              if (selectedAgent) {
+                setView('agentDetail');
+                return;
+              }
+              setView('home');
+            }}
+          />
+        ) : null
+      ) : null}
     </Page>
   );
 }

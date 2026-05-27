@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {Box, Spinner, Text} from 'zmp-ui';
-
 import {getItemImages} from '@/services/rsitemService';
 import type {Rsitem} from '@/types/rsitem';
 
@@ -12,7 +11,7 @@ import {
   getDetailPriceParts,
   getDetailRoomParts,
   openZaloChatByPhone,
-  isFavoriteRsitem,
+  isFavoriteRsitem, 
 toggleFavoriteRsitem,
 } from '../helpers';
 import DetailMiniMap from './DetailMiniMap';
@@ -44,9 +43,7 @@ const [saved, setSaved] = useState(() => isFavoriteRsitem(item));
           alt={item.title || 'Property image'}
         />
 
-        <button type="button" className="detail-back-button" onClick={onBack}>
-          ←
-        </button>
+        
 
         
 
